@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # Serwis Bazy Danych (PostgreSQL)
+  db:
+    image: postgres:15-alpine # Lekki obraz, stabilna wersja
+    container_name: shelf_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data # Trwałe przechowywanie danych
+    ports:
+      - "${DB_PORT}:${DB_PORT}" # Port 5432:5432
+
+  # Serwis Aplikacji (Node.js/TS) - Będziemy go używać do migracji i poleceń
+  app:
+    build: . # Używa Dockerfile
+    container_name: shelf_app
+    volumes:
+      - .:/app # Umożliwia montowanie kodu z hosta do kontenera
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db # Upewnia się, że baza danych jest gotowa
+    # Przekazujemy adres bazy. WAŻNE: Wewnątrz dockera hostem jest 'db'!
+    environment:
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}?schema=public"
+
+volumes:
+  pgdata:
+    driver: local
