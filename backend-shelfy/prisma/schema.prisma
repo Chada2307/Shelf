@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Movie {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  ratings     Rating[]
+}
+
+model Game {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  ratings     Rating[]
+}
+
+model Book {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  ratings     Rating[]
+}
+
+model Serie {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  ratings     Rating[]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  ratings   Rating[]
+}
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  score     Int
+  review    String?
+  createdAt DateTime @default(now())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  movieId Int?
+  movie   Movie? @relation(fields: [movieId], references: [id])
+
+  gameId Int?
+  game   Game? @relation(fields: [gameId], references: [id])
+
+  bookId Int?
+  book   Book? @relation(fields: [bookId], references: [id])
+
+  serieId Int?
+  serie   Serie? @relation(fields: [serieId], references: [id])
+}
